@@ -12,6 +12,8 @@ From: ubuntu:20.04
 # Add files at build time
 %files
         requirements.txt
+        setup.py /code/setup.py
+        diffusion_lm /code/diffusion_lm
 
 ################# Section: Defining the system #################################
 # Commands in the %post section are executed within the container.
@@ -42,6 +44,9 @@ From: ubuntu:20.04
         echo "Installing requirements.."
         pip3 install --upgrade pip
         pip3 install -r requirements.txt
+
+        echo "Installing local package"
+        pip3 install -e /code
 
         echo "Creating mount points.."
         mkdir /dataset
