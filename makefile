@@ -15,10 +15,10 @@ push:
 	rsync -rvahzP ${IMAGE} ${SERVER}.server.mila.quebec:${SCRATCH}
 
 ${REPO_NAME}_sandbox: ${IMAGE}
-	singularity build --sandbox ${REPO_NAME}_sandbox ${IMAGE}
+	singularity build --sandbox sandbox ${IMAGE}
 
 sandbox: ${REPO_NAME}_sandbox
-	sudo singularity shell ${FLAGS} --writable ${REPO_NAME}_sandbox
+	sudo singularity shell ${FLAGS} --writable sandbox
 
 container: ${IMAGE}
 ${IMAGE}:
