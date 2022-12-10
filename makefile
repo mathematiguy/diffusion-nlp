@@ -2,7 +2,7 @@ REPO_NAME := $(shell basename `git rev-parse --show-toplevel` | tr '[:upper:]' '
 DOCKER_REGISTRY := mathematiguy
 IMAGE := ${REPO_NAME}.sif
 RUN ?= singularity exec ${FLAGS} --nv ${IMAGE}
-FLAGS ?= 
+FLAGS ?= -B $$(pwd):/code --pwd /code
 SINGULARITY_ARGS ?=
 
 .PHONY: sandbox container shell root-shell docker docker-push docker-pull enter enter-root
@@ -11,7 +11,7 @@ jupyter:
 	${RUN} jupyter lab --ip 0.0.0.0 --port=8888 --NotebookApp.password=$(shell singularity exec ${IMAGE} python -c "from notebook.auth import passwd; print(passwd('jupyter', 'sha1'))")
 
 test:
-	${RUN} pytest
+	${RUN} pytest -v tests --rootdir /code
 
 SERVER ?= cn-f001
 push:
