@@ -1,3 +1,5 @@
+import logging
+
 import torch
 import torch.nn as nn
 
@@ -82,18 +84,18 @@ class DiffusionLM(nn.Module):
 
         # Upsample to `hidden_size` dimensional embeddings
         upsampled = self.input_projection(embeddings)
-        print(f"upsampled.shape: {upsampled.shape}")
+        logging.debug(f"upsampled.shape: {upsampled.shape}")
 
         # Add timestep embedding + unroll across each sequence
         timesteps = self.time_embedding(timestep_embedding(timestep, self.hidden_dim))
         timesteps = timesteps.unsqueeze(1).expand(-1, seq_length, -1)
-        print(f"timestep.shape: {timesteps.shape}")
+        logging.debug(f"timestep.shape: {timesteps.shape}")
 
         # Calculate positional embedding
         position_embeddings = self.position_embeddings(
             self.position_ids[:, :seq_length]
         )
-        print(f"position_embeddings.shape: {position_embeddings.shape}")
+        logging.debug(f"position_embeddings.shape: {position_embeddings.shape}")
 
         # Apply dropout + layernorm
         encoder_inputs = self.dropout(
@@ -102,7 +104,7 @@ class DiffusionLM(nn.Module):
 
         # Get `hidden_size`-dimensional bert representation
         representations = self.encoder(encoder_inputs).last_hidden_state
-        print(f"representations.shape: {representations.shape}")
+        logging.debug(f"representations.shape: {representations.shape}")
 
         # Downsample to d-representation
         downsampled = self.output_projection(representations)
