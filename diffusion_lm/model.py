@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+from .utils import timestep_embedding
 from transformers import BertTokenizer, BertConfig
 from transformers.models.bert.modeling_bert import BertEncoder
 
