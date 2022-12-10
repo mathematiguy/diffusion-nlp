@@ -100,7 +100,7 @@ class DiffusionLM(nn.Module):
         )
 
         # Get `hidden_size`-dimensional bert representation
-        representations = model.encoder(encoder_inputs).last_hidden_state
+        representations = self.encoder(encoder_inputs).last_hidden_state
         print(f"representations.shape: {representations.shape}")
 
         # Downsample to d-representation
@@ -110,7 +110,7 @@ class DiffusionLM(nn.Module):
 
     def fit(self, train_dataset, epochs, batch_size):
 
-        for epoch in epochs:
+        for epoch in range(epochs):
 
             for batch in train_dataset:
 
