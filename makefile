@@ -10,6 +10,9 @@ SINGULARITY_ARGS ?=
 jupyter:
 	${RUN} jupyter lab --ip 0.0.0.0 --port=8888 --NotebookApp.password=$(shell singularity exec ${IMAGE} python -c "from notebook.auth import passwd; print(passwd('jupyter', 'sha1'))")
 
+test:
+	${RUN} pytest
+
 SERVER ?= cn-f001
 push:
 	rsync -rvahzP ${IMAGE} ${SERVER}.server.mila.quebec:${SCRATCH}
