@@ -113,6 +113,8 @@ class DiffusionLM(nn.Module):
 
     def fit(self, train_dataset, epochs, batch_size):
 
+        self.optimizer = torch.optim.AdamW(self.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08)
+
         for epoch in range(epochs):
 
             for batch in train_dataset:
