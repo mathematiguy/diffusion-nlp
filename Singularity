@@ -7,7 +7,8 @@ From: ubuntu:20.04
 # Environment variables that should be sourced at runtime.
 %environment
         # use bash as default shell
-        SHELL=/bin/bash
+        export SHELL=/bin/bash
+        export PYTHONPATH=/code:$PYTHONPATH
 
 # Add files at build time
 %files
