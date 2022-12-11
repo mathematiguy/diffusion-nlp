@@ -1,13 +1,15 @@
 import pdb
 import logging
 
+from tqdm import tqdm
+
 import einops
 import numpy as np
 
 import torch
 import torch.nn as nn
 
-from .utils import timestep_embedding, diffusion_noise_schedule
+from diffusion_lm.utils import timestep_embedding, diffusion_noise_schedule
 from transformers import BertTokenizer, BertConfig
 from transformers.models.bert.modeling_bert import BertEncoder
 
@@ -20,8 +22,10 @@ class DiffusionLM(nn.Module):
         d=16,  # embedding dimensions
         lr=1e-4,
         dropout=0.1,
+        device='cpu'
     ):
         super().__init__()
+        self.device = device
         self.tokenizer = BertTokenizer.from_pretrained(base_model)
         self.embedding = nn.Embedding(self.tokenizer.vocab_size, d)
         self.bert_config = BertConfig()
@@ -65,14 +69,16 @@ class DiffusionLM(nn.Module):
         self.output_projection = nn.Sequential(
             nn.Linear(self.hidden_size, self.hidden_size),
             nn.Tanh(),
-            nn.Linear(self.hidden_size, 2 * d),
+            nn.Linear(self.hidden_size, d),
         )
+
+        self.to(self.device)
 
     def get_timestep_embeddings(self):
         timesteps = torch.arange(self.diffusion_steps)
         timesteps = timestep_embedding(timesteps, self.hidden_dim)
         timesteps = self.time_embedding(timesteps)
-        return timesteps
+        return timesteps.to(self.device)
 
     def q_sample(self, x, timesteps):
         """
@@ -82,15 +88,13 @@ class DiffusionLM(nn.Module):
         batch_size, seq_length, embed_dim = x.shape
 
         # Calculate and propagate noise schedule
-        beta_t = torch.Tensor(diffusion_noise_schedule(timesteps))
+        beta_t = torch.Tensor(diffusion_noise_schedule(timesteps)).to(self.device)
 
         beta_t = einops.repeat(
             beta_t, "b -> b w x", b=batch_size, w=seq_length, x=embed_dim
         )
 
-        q_t = torch.normal(
-            (1 - torch.sqrt(beta_t)) * x, std=1 - torch.sqrt(1 - beta_t)
-        )
+        q_t = torch.normal((1 - torch.sqrt(beta_t)) * x, std=1 - torch.sqrt(1 - beta_t))
 
         return q_t
 
@@ -108,14 +112,18 @@ class DiffusionLM(nn.Module):
 
         # Add timestep embedding + unroll across each sequence
         timestep_embeddings = self.timestep_embeddings[timesteps]
-        timestep_embeddings = einops.repeat(timestep_embeddings, 'b e -> b s e', s = seq_length)
+        timestep_embeddings = einops.repeat(
+            timestep_embeddings, "b e -> b s e", s=seq_length
+        )
         logging.debug(f"timestep.shape: {timesteps.shape}")
 
         # Calculate positional embedding
         position_embeddings = self.position_embeddings(
             self.position_ids[:, :seq_length]
         )
-        position_embeddings = einops.repeat(position_embeddings, '1 s x -> b s x', b = batch_size)
+        position_embeddings = einops.repeat(
+            position_embeddings, "1 s x -> b s x", b=batch_size
+        )
         logging.debug(f"position_embeddings.shape: {position_embeddings.shape}")
 
         # Apply dropout + layernorm
@@ -131,26 +139,51 @@ class DiffusionLM(nn.Module):
 
         return downsampled
 
-    def fit(self, train_dataset, epochs, batch_size):
+    def fit(self, train_dataset, epochs):
+
+        self.to(self.device)
 
         self.optimizer = torch.optim.AdamW(
             self.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08
         )
 
+        self.loss = nn.MSELoss()
+
         for epoch in range(epochs):
 
-            for batch in train_dataset:
+            progress = []
 
-                for text in batch:
+            for step, batch in tqdm(enumerate(train_dataset), total=len(train_dataset)):
 
-                    # Embed the provided text
-                    embedding = self.embedding(text)
+                batch = batch.to(self.device)
 
-                    # Sample timesteps randomly
-                    timesteps = torch.randint(self.diffusion_steps, (batch_size,))
+                batch_size = batch.shape[0]
 
-                    # Sample the noised embeddings
-                    noised_embeddings = self.q_sample(embedding, timesteps)
+                # Zero the optimizer
+                self.optimizer.zero_grad()
 
-                    # Estimate the denoised parameters
-                    # self.forward(noised_embeddings, )
+                # Embed the provided text
+                embeddings = self.embedding(batch)
+
+                # Sample timesteps randomly
+                timesteps = torch.randint(self.diffusion_steps, (batch_size,)).to(self.device)
+
+                # Estimate the denoised parameters
+                predictions = self.forward(embeddings, timesteps)
+
+                # Construct the target
+                targets = self.q_sample(embeddings, timesteps)
+
+                # Calculate the loss
+                loss = self.loss(predictions, targets)
+
+                # Track the loss
+                progress.append(float(loss.cpu()))
+
+                # Backpropagate the loss
+                loss.backward(retain_graph=step==0)
+
+                # Update the optimizer
+                self.optimizer.step()
+
+            print(f"Progress: {np.sum(progress)}")
