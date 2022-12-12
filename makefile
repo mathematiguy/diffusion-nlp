@@ -7,6 +7,9 @@ SINGULARITY_ARGS ?=
 
 .PHONY: sandbox container shell root-shell docker docker-push docker-pull enter enter-root
 
+report:
+	(${RUN} bash -c "cd MLRC-2022-Report && ${MAKE} article")
+
 train:
 	${RUN} python diffusion_lm/train.py
 
