@@ -29,7 +29,16 @@ From: ubuntu:20.04
                 wget \
                 unzip \
                 software-properties-common \
-                git
+                git \
+                build-essential \
+                latexmk \
+                texlive-xetex \
+                texlive-latex-base \
+                texlive-fonts-recommended \
+                texlive-fonts-extra \
+                texlive-latex-extra \
+                texlive-bibtex-extra \
+                biber
         apt-get clean
 
         echo "Install python3.9.."
