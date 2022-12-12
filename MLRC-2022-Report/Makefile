@@ -15,7 +15,7 @@ article: article.pdf
 # CUSTOM BUILD RULES
 # -----------------------------------------------------------------------------
 metadata.tex: metadata.yaml
-	./yaml-to-latex.py -i $< -o $@
+	python yaml-to-latex.py -i $< -o $@
 
 
 # MAIN LATEXMK RULE
@@ -27,7 +27,7 @@ metadata.tex: metadata.yaml
 # missing file reference and interactively asking you for an alternative.
 
 article.pdf: article.tex content.tex metadata.tex rescience.cls
-	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make article.tex
+	latexmk -f -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make article.tex
 
 clean:
 	@latexmk -CA
