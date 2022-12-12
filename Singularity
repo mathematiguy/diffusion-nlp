@@ -30,7 +30,10 @@ From: ubuntu:20.04
                 unzip \
                 software-properties-common \
                 git \
-                build-essential \
+                build-essential
+
+        echo "Install LaTeX.."
+        apt-get install -y \
                 latexmk \
                 texlive-xetex \
                 texlive-latex-base \
