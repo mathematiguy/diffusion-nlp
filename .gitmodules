@@ -1,0 +1,3 @@
+[submodule "Diffusion-LM"]
+	path = Diffusion-LM
+	url = git@github.com:mathematiguy/Diffusion-LM.git
