@@ -1,38 +1,16 @@
 \section*{\centering Reproducibility Summary}
 
 \subsubsection*{Scope of Reproducibility}
-
-% State the main claim(s) of the original paper you are trying to reproduce (typically the main claim(s) of the paper).
-% This is meant to place the work in context, and to tell a reader the objective of the reproduction.
-
-The paper discusses a new non-autoregressive language model called Diffusion-LM, which is based on continuous diffusions. Building upon the recent successes of diffusion models in continuous domains, Diffusion-LM iteratively denoises a sequence of Gaussian vectors into word vectors, yielding a sequence of intermediate latent variables. The continuous, hierarchical nature of these intermediate variables enables a simple gradient-based algorithm to perform complex, controllable generation tasks. The authors demonstrate successful control of Diffusion-LM for six challenging fine-grained control tasks, significantly outperforming prior work.
+The paper discusses a new non-autoregressive language model called Diffusion-LM, which uses continuous diffusions to iteratively denoise a sequence of Gaussian vectors into word vectors. This allows for complex, controllable generation tasks, and the authors show successful control of Diffusion-LM for six challenging fine-grained control tasks.
 
 \subsubsection*{Methodology}
-
-% Briefly describe what you did and which resources you used. For example, did you use author's code? Did you re-implement parts of the pipeline? You can use this space to list the hardware and total budget (e.g. GPU hours) for the experiments. 
-
-For the reproduction of the results in the paper, I primarily relied on the author's source code. While I initially attempted to write my own implementation, I was unable to do so within the time constraints. However, I was able to uncover some details of the authors' implementation that were not mentioned in the paper.
-
-My experiments were run on the Mila Cluster, using a single NVIDIA A100 GPU to retrain the E2E dataset model in under 10 hours. For the larger ROC stories dataset, I used 16 NVIDIA Quadro RTX 8000 GPUs to train the model in under 20 hours. Overall, the experiments were successful and allowed me to reproduce the results in the paper with some differences.
-
-\subsubsection*{Results}
-
-Start with your overall conclusion --- where did your results reproduce the original paper, and where did your results differ? Be specific and use precise language, e.g. "we reproduced the accuracy to within 1\% of reported value, which supports the paper's conclusion that it outperforms the baselines". Getting exactly the same number is in most cases infeasible, so you'll need to use your judgement to decide if your results support the original claim of the paper.
+I primarily relied on the author's source code for reproducing the results in the paper. While I attempted to write my own implementation, I was unable to do so within the time constraints. However, I was able to uncover some details of the authors' implementation that were not mentioned in the paper. My experiments were run on the Mila Cluster, using a single NVIDIA A100 GPU to retrain the E2E dataset model in under 10 hours. For the larger ROC stories dataset, I used 16 NVIDIA Quadro RTX 8000 GPUs to train the model in under 20 hours.
 
 \subsubsection*{What was easy}
-
-% Describe which parts of your reproduction study were easy. For example, was it easy to run the author's code, or easy to re-implement their method based on the description in the paper? The goal of this section is to summarize to a reader which parts of the original paper they could easily apply to their problem.
-
-One aspect of the reproduction study that was straightforward was re-running the original source code. The project requirements were well-documented and the datasets were easily accessible, as the authors used HuggingFace to access and load the data. In total, the model required only 150 MB of text data for training and evaluation, which is much more manageable than other commonly used language modelling datasets. Overall, the clear documentation and small data requirements made it easy to apply the method described in the paper to my own problem.
+Re-running the original source code was straightforward. The project requirements were well-documented and the datasets were easily accessible. In total, the model required only 150 MB of text data for training and evaluation, which is much more manageable than other commonly used language modelling datasets.
 
 \subsubsection*{What was difficult}
-
-% Describe which parts of your reproduction study were difficult or took much more time than you expected. Perhaps the data was not available and you couldn't verify some experiments, or the author's code was broken and had to be debugged first. Or, perhaps some experiments just take too much time/resources to run and you couldn't verify them. The purpose of this section is to indicate to the reader which parts of the original paper are either difficult to re-use, or require a significant amount of work and resources to verify.
-
-The model was complex and I found the paper lacking in some crucial details about how to implement it well. Naturally, I had the impression that it assumed familiarity with a wide range of literature, there were also some model details that were left out of the paper which I only discovered when I looked at the code.
-
-Replicating the experiments took a lot of trial and error, and I am not sure if the authors did some optimisations to run the model efficiently on their hardware. I was unable to replicate their training time of 5 hours for the E2E dataset model using the A100 GPUs in our infrastructure.
+The model was complex and I found the paper lacking in some crucial details about how to implement it well. The paper also assumed familiarity with a wide range of literature, and there were some model details that were left out of the paper which I only discovered when I looked at the code. Replicating the experiments took a lot of trial and error, and I was unable to replicate their training time of 5 hours using the A100 GPUs in the Mila Cluster.
 
 \subsubsection*{Communication with original authors}
-
-I did not have contact with the original authors, however I was able to watch their poster presentation at NeurIPS 2022. I was not able to ask direct questions about the implementation, although I did discover their github issues contained some helpful discussion.
+I did not have contact with the original authors, but I was able to watch their poster presentation at NeurIPS 2022. I was not able to ask direct questions about their implementation, but I did discover the github issues for their code repository contained some helpful discussion.

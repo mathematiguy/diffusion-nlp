@@ -1,38 +1,75 @@
-\textit{\textbf{The following section formatting is \textbf{optional}, you can also define sections as you deem fit.
-\\
-Focus on what future researchers or practitioners would find useful for reproducing or building upon the paper you choose.\\
-For more information of our previous challenges, refer to the editorials \cite{Sinha:2022,Sinha:2021,Sinha:2020,Pineau:2019}.
-}}
 \section{Introduction}
-A few sentences placing the work in high-level context. Limit it to a few paragraphs at most; your report is on reproducing a piece of work, you don’t have to motivate that work.
+
+% A few sentences placing the work in high-level context. Limit it to a few paragraphs at most; your report is on reproducing a piece of work, you don’t have to motivate that work.
+
+The original paper discusses a new non-autoregressive language model called Diffusion-LM, which is based on continuous diffusions. Diffusion-LM iteratively denoises a sequence of Gaussian vectors into word vectors to produce a sequence of intermediate latent variables. The continuous, hierarchical nature of these intermediate variables enables a simple gradient-based algorithm to perform complex, controllable generation tasks. The authors demonstrate successful control of Diffusion-LM for six challenging fine-grained control tasks, outperforming prior work.
 
 \section{Scope of reproducibility}
 \label{sec:claims}
 
-Introduce the specific setting or problem addressed in this work, and list the main claims from the original paper. Think of this as writing out the main contributions of the original paper. Each claim should be relatively concise; some papers may not clearly list their claims, and one must formulate them in terms of the presented experiments. (For those familiar, these claims are roughly the scientific hypotheses evaluated in the original work.)
+% Introduce the specific setting or problem addressed in this work, and list the main claims from the original paper. Think of this as writing out the main contributions of the original paper. Each claim should be relatively concise; some papers may not clearly list their claims, and one must formulate them in terms of the presented experiments. (For those familiar, these claims are roughly the scientific hypotheses evaluated in the original work.)
 
-A claim should be something that can be supported or rejected by your data. An example is, ``Finetuning pretrained BERT on dataset X will have higher accuracy than an LSTM trained with GloVe embeddings.''
-This is concise, and is something that can be supported by experiments.
-An example of a claim that is too vague, which can't be supported by experiments, is ``Contextual embedding models have shown strong performance on a number of tasks. We will run experiments evaluating two types of contextual embedding models on datasets X, Y, and Z."
+% A claim should be something that can be supported or rejected by your data. An example is, ``Finetuning pretrained BERT on dataset X will have higher accuracy than an LSTM trained with GloVe embeddings.''
+% This is concise, and is something that can be supported by experiments.
+% An example of a claim that is too vague, which can't be supported by experiments, is ``Contextual embedding models have shown strong performance on a number of tasks. We will run experiments evaluating two types of contextual embedding models on datasets X, Y, and Z."
 
-This section roughly tells a reader what to expect in the rest of the report. Clearly itemize the claims you are testing:
+The central claim of the paper is that a language model trained via a continuous diffusion process learns hierarchical representations, and that constraints can be placed in this latent space that allow for richer controls than those from autoregressive language models which can only condition text on the left context.
+
+To this aim, the following control experiments are considered in the original paper:
+
+% Each experiment in Section~\ref{sec:results} will support (at least) one of these claims, so a reader of your report should be able to separately understand the \emph{claims} and the \emph{evidence} that supports them.
+
 \begin{itemize}
-    \item Claim 1
-    \item Claim 2
-    \item Claim 3
+\item \textbf{Semantic Content}: Given a field and value, generate a sentence that covers the field and value, and report the success rate by exact match of the value.
+\item \textbf{Parts-of-speech}: Given a sequence of parts-of-speech tags, generate a sequence of words whose POS tags match the target. Success is measured via word-level exact match.
+\item \textbf{Syntax Tree}: Given a target syntactic parse tree, generate text whose syntactic parse matches the given parse. Success is evaluated using F1 scores.
+\item \textbf{Syntax Spans}: Given a target pair of span and syntactic category, generate text whose parse tree over the span matches the target syntactic category. Success is measured by the fraction of spans that match exactly.
+\item \textbf{Length}: Given a target length, generate a sequence with a length within ±2 of the target.
+\item \textbf{Infilling}: Given left and right contexts, generate a sentence that logically connects the two. Both automatic and human evaluation is used for evaluation.
 \end{itemize}
 
-Each experiment in Section~\ref{sec:results} will support (at least) one of these claims, so a reader of your report should be able to separately understand the \emph{claims} and the \emph{evidence} that supports them.
+Therefore, a faithful reproduction of the original work would involve rerunning these experiments and calculating their results.
 
 %\jdcomment{To organizers: I asked my students to connect the main claims and the experiments that supported them. For example, in this list above they could have ``Claim 1, which is supported by Experiment 1 in Figure 1.'' The benefit was that this caused the students to think about what their experiments were showing (as opposed to blindly rerunning each experiment and not considering how it fit into the overall story), but honestly it seemed hard for the students to understand what I was asking for.}
 
+\section{Related work}
+% The paper you are reproducing already has related works. Rather than just copying, focus on the relevant papers they cited (you may ignore non-relevant related works) from the perspective of the challenge. You should also include papers that were not cited by the work you are reproducing (for example, works published after/concurrently, or that were simply missed by your paper).
+
 \section{Methodology}
-Explain your approach - did you use the author's code, or did you aim to re-implement the approach from the description in the paper? Summarize the resources (code, documentation, GPUs) that you used.
+
+% Explain your approach - did you use the author's code, or did you aim to re-implement the approach from the description in the paper? Summarize the resources (code, documentation, GPUs) that you used.
+
+For the reproduction of the results in the paper, I primarily relied on the author's source code. While I initially attempted to write my own implementation, I was unable to do so within the time constraints. However, I was able to uncover some details of the authors' implementation that were not mentioned in the paper.
+
+My experiments were run using a single NVIDIA A100 GPU to retrain the E2E dataset model in under 10 hours. For the larger ROC stories dataset, I used 16 NVIDIA Quadro RTX 8000 GPUs to train the model in under 20 hours. I then used the models I trained to implement the control tests described in the paper.
 
 \subsection{Model descriptions}
-Include a description of each model or algorithm used. Be sure to list the type of model, the number of parameters, and other relevant info (e.g. if it's pretrained). 
+
+Diffusion-LM is a diffusion model that involves iterative denoising of a Gaussian noise signal. During training, the text is converted into tokens by means of a default BERT tokenizer. These tokens are then embedded into a low-dimensional (e.g. $d=16$) latent space and upsampled by a fully connected network to match a Transformer encoder architecture.
+
+As shown in Figure \ref{fig:graphical-model}, the token embeddings are iteratively noised according to a schedule parametrized by $q(x_t | x_{t-1}) = \mathcal{N}(x_t; \sqrt{1-\beta_t x_{t-1}}, \beta_t \mathbb{I})$. The $\beta_t$ values are chosen according to a scheduling function such that, after $T=2000$ steps, the resulting embeddings are normally distributed. This forward noise is then reversed by a Transformer model described by the Markov chain: $p_\theta(x_{t-1}|x_t) = \mathcal{N}(x_{t-1}; \mu_\theta(x_t, t), \Sigma_\theta (x_t, t))$.
+
+The noised embeddings are then projected down to $d$ dimensions to match the input embedding size using another fully connected network. This noise removal process is applied to each sample from $x_T$ to $x_0$. A ``rounding step'' $p_\theta (w|x_0)$ is then used to map the resulting embeddings onto the nearest neighboring token using a softmax function.
+
+\begin{figure}[h]
+\includegraphics[scale=0.3]{images/diffusion-lm-graphical-model.png}
+\centering
+\caption{A graphical model representing the forward and reverse diffusion processes. In addition a rounding and embedding mapping is added to shift between continuous latents and the discrete token space.}
+\label{fig:graphical-model}
+\end{figure}
+
+During training, a clamping trick is employed in which the denoised embeddings are clamped onto the nearest token exactly. This improved the model's stability during training, according to the authors.
+
+The paper considered many different modifications to the diffusion process used during training, exploring hyperparameters such as the latent embedding dimension and different noise schedules. They also employed an analytical simplification of the variational lower bound loss function derived from the widely known image diffusion context.
+
+In my work, I focused on the version from which I believe they derived their main results. The Diffusion-LM I considered is based on a Transformer architecture with 80M parameters which is basically the base bert uncased model from HuggingFace with default parameters. The input and output projection layers employed a single hidden layer of 768 dimensions (matching the embedding dimension of the BERT base model), and a tanh activation function.
 
 \subsection{Datasets}
+
+The authors trained Diffusion-LM on two datasets, E2E and ROCStories. The E2E dataset consists of 50K restaurant reviews labelled by 8 fields including food type, price and customer rating. The ROCStories dataset consists of 98K five-sentence stories, capturing a rich set of causal and temporal commonsense relations between daily events.
+
+
+
 For each dataset include 1) relevant statistics such as the number of examples and label distributions, 2) details of train / dev / test splits, 3) an explanation of any preprocessing done, and 4) a link to download the data (if available).
 
 \subsection{Hyperparameters}
