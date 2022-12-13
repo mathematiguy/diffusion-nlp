@@ -66,57 +66,139 @@ In my work, I focused on the version from which I believe they derived their mai
 
 \subsection{Datasets}
 
+% For each dataset include
+% 1) relevant statistics such as the number of examples and label distributions,
+% 2) details of train / dev / test splits,
+% 3) an explanation of any preprocessing done, and
+% 4) a link to download the data (if available).
+
 The authors trained Diffusion-LM on two datasets, E2E and ROCStories. The E2E dataset consists of 50K restaurant reviews labelled by 8 fields including food type, price and customer rating. The ROCStories dataset consists of 98K five-sentence stories, capturing a rich set of causal and temporal commonsense relations between daily events.
 
+\subsubsection{E2E}
 
+E2E is a dataset for training end-to-end natural language generation systems in the restaurant domain. It contains 1,026,048 tokens in total with 2,435 unique tokens, and the full dataset totals 12MB. You can download the dataset using the Huggingface datasets API or at \href{https://github.com/tuetschek/e2e-dataset}{https://github.com/tuetschek/e2e-dataset}.
 
-For each dataset include 1) relevant statistics such as the number of examples and label distributions, 2) details of train / dev / test splits, 3) an explanation of any preprocessing done, and 4) a link to download the data (if available).
+The training set for the E2E dataset contains 42,061 examples, while the validation and test sets contain 4,672 and 4,693 examples respectively. Each example contains a restaurant review paired with a collection of fields and values such as named entities, food type, restaurant type and rating.
+
+\begin{table}
+  \centering
+  \begin{tabular}{ | m{3cm} | m{7cm}| } 
+    \hline
+    Name & The Vaults \\ 
+    Type & pub \\ 
+    Price & more than £ 30 \\
+    Customer Rating & 5 out of 5 \\
+    Near & Café Adriatic \\
+    Text & The Vaults pub near Café Adriatic has a 5 star rating. \\
+    \hline
+  \end{tabular}
+  \caption{Here is one example from the E2E dataset. All values are free text values, but the fields are fixed and not all listed for every example.}
+\end{table}
+
+\begin{figure}[h]
+  \includegraphics[scale=0.6]{images/e2e-field-frequencies.png}
+  \centering
+  \caption{In the E2E dataset, the labels occur with the following frequencies}
+  \label{fig:e2e-field-frequencies}
+\end{figure}
+
+\subsubsection{ROCStories}
+
+The ROCStories dataset consists of 98K five-sentence stories. Being the larger dataset at 22.3 MB of text, with the total raw text containing 4,319,744 tokens in total, of which 39,167 are unique. Because of its size and since it is not restricted to a single domain as E2E is, it is a richer and more complex dataset which makes it more challenging to model.
+
+You can download the ROCStories dataset at \href{https://cs.rochester.edu/nlp/rocstories/}{https://cs.rochester.edu/nlp/rocstories/}, and some randomly selected examples are shown in figure \ref{fig:roc-stories-examples}.
+
+\begin{table}
+  \centering
+  \begin{tabular}{ | m{12cm}| } 
+    \hline
+    I have a wolf named Kiera, but we nicknamed her Wolfie. She wanted to get up early this morning to go for a walk. She was so excited when she saw a squirrel that she pulled really hard. She almost caught the squirrel, but missed by only a few inches. She was sad when we got home, because she didn't kill the squirrel. \\ \hline
+    Katie felt like chicken for lunch. On her lunch break, she left to go to a restaurant. Katie was walking across the lot when a fish hit her on her head. Experts said a sea gull probably dropped the fish while it was flying. Katie thought it was funny until her neck started to hurt. \\ \hline
+    I accidentally left the webcam running on my work computer. I discovered it running when I came to work the next morning. I played back the video from the previous evening. On the video I was shocked to find something unusual. It was footage of the cleanup crew eating the apple on my desk! \\
+    \hline
+  \end{tabular}
+  \caption{Here are three randomly selected examples from the ROCStories dataset.}
+  \label{fig:roc-stories-examples}
+\end{table}
 
 \subsection{Hyperparameters}
-Describe how the hyperparameter values were set. If there was a hyperparameter search done, be sure to include the range of hyperparameters searched over, the method used to search (e.g. manual search, random search, Bayesian optimization, etc.), and the best hyperparameters found. Include the number of total experiments (e.g. hyperparameter trials). You can also include all results from that search (not just the best-found results).
+% Describe how the hyperparameter values were set. If there was a hyperparameter search done, be sure to include the range of hyperparameters searched over, the method used to search (e.g. manual search, random search, Bayesian optimization, etc.), and the best hyperparameters found. Include the number of total experiments (e.g. hyperparameter trials). You can also include all results from that search (not just the best-found results).
+
+\subsubsection{Diffusion-LM hyperparameters}
+Diffusion-LM is a language model that uses a Transformer denoiser with specific hyperparameters, including the number of diffusion steps, the architecture, the embedding dimension, and the noise schedule. In the paper, the authors set the number of diffusion steps to 2000, the architecture to BERT-base, and the sequence length to 64. The embedding dimension was set to 16 for the E2E dataset and 128 for ROCStories. For the noise schedule, they used a sqrt schedule because it was more robust to different model parametrizations and embedding dimensions.
+
+\subsubsection{Training hyperparameters}
+To train Diffusion-LM, the authors used the AdamW optimizer with a linearly decaying learning rate initialized at 1e-4, a dropout rate of 0.1, a batch size of 64, and a total number of training iterations of 200,000 for the E2E dataset and 800,000 for the ROCStories dataset.
+
+\subsubsection{Controllable generation hyperparameters}
+
+To control the generation of text with Diffusion-LM, the authors ran gradient updates on the continuous latents of the model. They used the AdaGrad optimizer with a learning rate of 0.0001 and annealed the learning rate at 200,000 steps for the E2E dataset and 400,000 steps for the ROCStories dataset. This allowed them to control the generation of text by updating the latent variables of the model.
 
 \subsection{Experimental setup and code}
-Include a description of how the experiments were set up that's clear enough a reader could replicate the setup. 
-Include a description of the specific measure used to evaluate the experiments (e.g. accuracy, precision@K, BLEU score, etc.). 
-Provide a link to your code.
+
+% Include a description of how the experiments were set up that's clear enough a reader could replicate the setup.
+% Include a description of the specific measure used to evaluate the experiments (e.g. accuracy, precision@K, BLEU score, etc.). 
+% Provide a link to your code.
+
+The original authors code was forked at \href{https://github.com/mathematiguy/Diffusion-LM}{https://github.com/mathematiguy/Diffusion-LM} and a Singularity container was built to containerize it fully, including all third party software dependencies. This container is documented in the repository so it can be rebuilt on the users machine, as it is quite large.
+
+The experiments were separated into training Diffusion-LM separately on the E2E and ROCStories datasets, and then separately training the classifier for downstream controlled generation tasks.
+
+Instructions are provided so that the reader can build the container locally and then run the experiments on a single node. However in practice we did extra work to deploy the model onto a compute cluster where it can be trained in distributed mode, and these scripts are also provided in case the reader may find them useful.
 
 \subsection{Computational requirements}
-Include a description of the hardware used, such as the GPU or CPU the experiments were run on. 
-For each model, include a measure of the average runtime (e.g. average time to predict labels for a given validation set with a particular batch size).
-For each experiment, include the total computational requirements (e.g. the total GPU hours spent).
-(Note: you'll likely have to record this as you run your experiments, so it's better to think about it ahead of time). Generally, consider the perspective of a reader who wants to use the approach described in the paper --- list what they would find useful.
+% Include a description of the hardware used, such as the GPU or CPU the experiments were run on. 
+% For each model, include a measure of the average runtime (e.g. average time to predict labels for a given validation set with a particular batch size).
+% For each experiment, include the total computational requirements (e.g. the total GPU hours spent).
+% (Note: you'll likely have to record this as you run your experiments, so it's better to think about it ahead of time). Generally, consider the perspective of a reader who wants to use the approach described in the paper --- list what they would find useful.
+
+While the original paper states that it was possible to train the model on E2E in under 5 hours on a single 80 GB NVidia A100 GPU, which is similar in computational power to 6-8 high end consumer GPUs running in distributed mode. However, we were able to train the model on the E2E dataset successfully, but we found number of hours required for training on our A100 was closer to 10 hours. We did reach out to the authors to ask if there were details missing from their recommended hyperparameters which could explain this discrepancy, but have not received a reply at present.
+
+Since the ROCStories dataset is trained for 4 times longer than E2E, this made training it as well impractical in the time available, considering the likely need to train the model multiple times due to subtle errors in the experimental setup that are difficult to predict ahead of time.
+
+Based on this, assuming a user with a single lower end consumer GPU, you could reasonably expect training Diffusion-LM on E2E to take about 3 days, which is not impossibly long. However, training the model on ROCStories with the provided hyperparameters would be expected to take closer to 2 weeks.
 
 \section{Results}
 \label{sec:results}
-Start with a high-level overview of your results. Do your results support the main claims of the original paper? Keep this section as factual and precise as possible, reserve your judgement and discussion points for the next "Discussion" section. 
 
+% Start with a high-level overview of your results. Do your results support the main claims of the original paper? Keep this section as factual and precise as possible, reserve your judgement and discussion points for the next "Discussion" section.
 
 \subsection{Results reproducing original paper}
-For each experiment, say 1) which claim in Section~\ref{sec:claims} it supports, and 2) if it successfully reproduced the associated experiment in the original paper. 
-For example, an experiment training and evaluating a model on a dataset may support a claim that that model outperforms some baseline.
-Logically group related results into sections. 
+% For each experiment, say 1) which claim in Section~\ref{sec:claims} it supports, and 2) if it successfully reproduced the associated experiment in the original paper. 
+% For example, an experiment training and evaluating a model on a dataset may support a claim that that model outperforms some baseline.
+% Logically group related results into sections. 
 
-\subsubsection{Result 1}
+I was not able to replicate the paper in full, but I was able to train the E2E Diffusion LM model from end to end using a single A100 GPU. So far the only claim I was able to investigate from the original paper was the claim that the model should take 5 hours to train, which I found to be closer to ten hours.
 
-\subsubsection{Result 2}
 
-\subsection{Results beyond original paper}
-Often papers don't include enough information to fully specify their experiments, so some additional experimentation may be necessary. For example, it might be the case that batch size was not specified, and so different batch sizes need to be evaluated to reproduce the original results. Include the results of any additional experiments here. Note: this won't be necessary for all reproductions.
+%% \subsubsection{Result 1}
+
+%% \subsubsection{Result 2}
+
+%% \subsection{Results beyond original paper}
+
  
-\subsubsection{Additional Result 1}
-\subsubsection{Additional Result 2}
+%% \subsubsection{Additional Result 1}
+%% \subsubsection{Additional Result 2}
 
 \section{Discussion}
 
 Give your judgement on if your experimental results support the claims of the paper. Discuss the strengths and weaknesses of your approach - perhaps you didn't have time to run all the experiments, or perhaps you did additional experiments that further strengthened the claims in the paper.
 
 \subsection{What was easy}
-Give your judgement of what was easy to reproduce. Perhaps the author's code is clearly written and easy to run, so it was easy to verify the majority of original claims. Or, the explanation in the paper was really easy to follow and put into code. 
+% Give your judgement of what was easy to reproduce. Perhaps the author's code is clearly written and easy to run, so it was easy to verify the majority of original claims. Or, the explanation in the paper was really easy to follow and put into code. 
 
-Be careful not to give sweeping generalizations. Something that is easy for you might be difficult to others. Put what was easy in context and explain why it was easy (e.g. code had extensive API documentation and a lot of examples that matched experiments in papers). 
+% Be careful not to give sweeping generalizations. Something that is easy for you might be difficult to others. Put what was easy in context and explain why it was easy (e.g. code had extensive API documentation and a lot of examples that matched experiments in papers).
+
+The authors code was easy to run, but also drew heavily from other work on diffusion models from other contexts, such as images. Their code also included the infrastructure necessary to run the model in distributed mode without much modification.
+
+The paper also contained a lot of useful detail, and I found the code to be consistent with their stated claims for the model design. The authors also provided the command line expressions necessary to rerun their experiments using their codebase. They were also responsive on their github issues, where I was able to find some useful discussion from other people also attempting to reproduce the model for their domain.
 
 \subsection{What was difficult}
-List part of the reproduction study that took more time than you anticipated or you felt were difficult. 
+
+Since the code was written by researchers, it includes many extraneous features for exploring a wide range of hyperparameters and other fine optimisation tweaks.
+
+List part of the reproduction study that took more time than you anticipated or you felt were difficult.
 
 Be careful to put your discussion in context. For example, don't say "the maths was difficult to follow", say "the math requires advanced knowledge of calculus to follow". 
 
