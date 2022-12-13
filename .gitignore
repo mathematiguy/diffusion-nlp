@@ -114,6 +114,7 @@ pkg.egg-info
 /.local/
 /diffusion-nlp_sandbox/
 /sandbox/
+/MLRC-2022-Report/metadata.tex
 /MLRC-2022-Report/article.aux
 /MLRC-2022-Report/article.bbl
 /MLRC-2022-Report/article.bcf
@@ -123,3 +124,4 @@ pkg.egg-info
 /MLRC-2022-Report/article.out
 /MLRC-2022-Report/article.pdf
 /MLRC-2022-Report/article.run.xml
+/MLRC-2022-Report/MLRC_2022_Template.pdf
