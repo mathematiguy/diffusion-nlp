@@ -26,7 +26,8 @@ metadata.tex: metadata.yaml
 # -interaction=nonstopmode keeps the pdflatex backend from stopping at a
 # missing file reference and interactively asking you for an alternative.
 
-article.pdf: article.tex content.tex metadata.tex rescience.cls
+TEX_FILES := $(shell ls *.tex)
+article.pdf: $(TEX_FILES) rescience.cls
 	latexmk -f -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make article.tex
 
 clean:
