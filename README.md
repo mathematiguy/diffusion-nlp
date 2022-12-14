@@ -7,7 +7,7 @@ This project attempts to reproduce the paper "Diffusion-LM Improves Controllable
 There are 3 significant subfolders of this repository:
 
 - `diffusion_lm` - contains code towards a from scratch reproduction of the authors' work. It includes a `model.py` model definition file in PyTorch, which implements the forward pass of the model as closely as I could figure out from the paper and also by looking through their source code. It is supported by `notebooks`, which contains my investigations of the model design, and also `tests` where I implemented some tests for testing the model code.
-- `Diffusion-LM` - contains a fork of the original source code for the paper at github.com/XiangLi1999/Diffusion-LM. There I have containerized the project so it can be run reliably on other computers. The full details of the fork are documented there.
+- `Diffusion-LM` - contains a fork of the original source code for the paper at https://github.com/XiangLi1999/Diffusion-LM. There I have containerized the project so it can be run reliably on other computers. The full details of the fork are documented there.
 - `MLRC-2022-Report` - is a latex project containing a report written by myself for the completion of a Class Project for Comp-599 Natural Language Understanding at McGill University, fall 2022 semester.
 
 # How to get started
