@@ -1,6 +1,6 @@
 # diffusion-nlp
 
-This project attempts to reproduce the paper "Diffusion-LM Improves Controllable Text Generation" by Li, X. L., Thickstun, J., Gulrajani, I., Liang, P., & Hashimoto, T. B. (2022).
+This project attempts to reproduce the paper "Diffusion-LM Improves Controllable Text Generation" by Li, X. L., Thickstun, J., Gulrajani, I., Liang, P., & Hashimoto, T. B. (2022), available here: https://arxiv.org/pdf/2205.14217.pdf
 
 ## Directory structure
 

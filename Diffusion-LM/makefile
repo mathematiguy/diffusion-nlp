@@ -7,10 +7,11 @@ SINGULARITY_ARGS ?=
 
 .PHONY: build shell docker docker-push docker-pull enter enter-root
 
-train_classifier:
+train_classifier: diffusion_models/diff_e2e-tgt_block_rand16_transformer_lr0.0001_0.0_2000_sqrt_Lsimple_h128_s2_d0.1_sd102_xstart_e2e
 	${RUN} python train_run.py --experiment e2e-tgt-tree --app "--init_emb diffusion_models/diff_e2e-tgt_block_rand16_transformer_lr0.0001_0.0_2000_sqrt_Lsimple_h128_s2_d0.1_sd102_xstart_e2e --e2e_train datasets/e2e_data --n_embd 16 --learned_emb yes " --pretrained_model bert-base-uncased --epoch 6 --bsz 10
 
-train_e2e_data:
+train_e2e_data: diffusion_models/diff_e2e-tgt_block_rand16_transformer_lr0.0001_0.0_2000_sqrt_Lsimple_h128_s2_d0.1_sd102_xstart_e2e
+diffusion_models/diff_e2e-tgt_block_rand16_transformer_lr0.0001_0.0_2000_sqrt_Lsimple_h128_s2_d0.1_sd102_xstart_e2e:
 	${RUN} bash -c 'cd improved-diffusion && python scripts/run_train.py --diff_steps 2000 --model_arch transformer --lr 0.0001 --lr_anneal_steps 200000 --seed 102 --noise_schedule sqrt --in_channel 16 --modality e2e-tgt --submit no --padding_mode block --app "--predict_xstart True --training_mode e2e --vocab_size 821 --e2e_train ../datasets/e2e_data " --notes xstart_e2e'
 
 train_rocstory:
