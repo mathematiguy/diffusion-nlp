@@ -45,4 +45,4 @@ make train
 
 This is everything you would need to know to get around this repository. Building the singularity container does take time, so if you insist on not using it you can still install the python requirements for the project with `pip install -r requirements.txt`, although it is recommended to do this inside of a python environment of some sort.
 
-You can still run the make commands outside of the singularity container with `make <command> RUN=` - this suppresses the `singularity exec` command.
+You can still run the make commands outside of the singularity container with `make <command> RUN=` - this suppresses the `singularity exec` command, but this will only work if you have the dependencies installed on your machine.
