@@ -19,10 +19,6 @@ jupyter:
 test:
 	${RUN} pytest -v tests --rootdir /code
 
-SERVER ?= cn-f001
-push:
-	rsync -rvahzP ${IMAGE} ${SERVER}.server.mila.quebec:${SCRATCH}
-
 ${REPO_NAME}_sandbox: ${IMAGE}
 	singularity build --sandbox sandbox ${IMAGE}
 
