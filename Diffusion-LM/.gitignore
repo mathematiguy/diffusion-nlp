@@ -1,0 +1,10 @@
+/diffusion-lm.sif
+/improved-diffusion/improved_diffusion.egg-info/
+**/.#*
+**/__pycache__
+/improved-diffusion/wandb/
+/improved-diffusion/diffusion_models/
+sandbox/
+classifier_models/
+diffusion-lm_sandbox/
+diffusion_models/
