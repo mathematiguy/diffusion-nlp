@@ -6,6 +6,12 @@ An attempted reproduction of the paper available here: https://arxiv.org/pdf/220
 
 The only software dependencies for this repository is GNU Make and Singularity. On Ubuntu systems, make can be installed simply via `sudo apt install make`. Instructions for how to install Singularity are available here: https://docs.sylabs.io/guides/3.5/user-guide/quick_start.html
 
+Before you get started you will need to build the singularity container locally as follows:
+
+```
+make container
+```
+
 # My contributions
 
 I have written a `Singularity` file which when combined with the `Makefile` creates a fully containerized environment around the source code.
